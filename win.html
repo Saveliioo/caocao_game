@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOU WIN</title>
+  <style>
+    body {
+  margin: 0;
+  background-image: url('https://www.lettergram.it/wp-content/uploads/2020/08/Y-3-graphics-seal.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.container {
+  background: rgba(0, 0, 0, 0.712); /* Чёрный цвет с 60% прозрачности */
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.594);
+}
+
+
+h1 {
+  font-size: 48px;
+  margin-top: 10px; /* Поднимаем заголовок */
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 24px;
+  margin-top: 5px; /* Поднимаем текст */
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 24px;
+  cursor: pointer;
+  border: none;
+  background-color: rgb(23, 23, 23);
+  color: #fff;
+  border-radius: 5px;
+  margin-top: 5px; /* Поднимаем кнопку */
+}
+
+button:hover {
+  background-color: rgb(122, 122, 122);
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>YOU WIN!!!<br>CAO CAO</h1>
+    <p>ТЫ ВЫЙГРАЛ МЕСТО НА ПОДИУМЕ, КРАСАВА!!!</p>
+    <button onclick="window.location.href='index.html'">Вернуться в меню</button>
+  </div>
+
+  <audio id="backgroundMusic" loop autoplay>
+    <source src="../voice/music.mp3" type="audio/mp3">
+  </audio>
+</body>
+
+</html>

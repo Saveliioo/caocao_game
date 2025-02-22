@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тетрис с выигрышем</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #222;
+      margin: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Основной видеофон (с аудио) */
+    #background-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    .game-container {
+      position: relative;
+      width: 450px;
+      height: 750px;
+      border: 2px solid white;
+      z-index: 1;
+      overflow: hidden;
+    }
+    /* Фоновое видео внутри тетриса (без звука) */
+    #tetris-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none;
+    }
+    canvas {
+      display: block;
+      background: transparent;
+      position: relative;
+      z-index: 0;
+    }
+    /* Табло со счётом */
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #fff;
+      font-size: 24px;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    
+    .screamer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://alliya.ru/wp-content/uploads/2021/08/3-2.jpg');
+    background-size: cover;
+    background-position: center;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  #game-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+}
+
+  #exitButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  #exitButton:hover {
+    background-color: rgba(167, 164, 164);
+  }
+  </style>
+</head>
+<body>
+  <!-- Основной видеофон (с аудио) -->
+  <video id="background-video" src="../voice/video.mp4" autoplay loop></video>
+  
+  <!-- Контейнер игры -->
+  <div class="game-container">
+    <!-- Фоновое видео внутри тетриса (без аудио) -->
+    <video id="tetris-video" src="../voice/video2.mp4" autoplay loop muted></video>
+    <canvas id="gameCanvas" width="450" height="750"></canvas>
+    <div id="scoreboard">ЦАУ ЦАУ ОЧКИ: 0</div>
+    <div class="screamer" id="screamer"></div>
+  </div>
+
+  <div id="game-controls">
+    <button id="exitButton">Выход</button>
+  </div>
+    
+  <!-- Звук окончания игры -->
+  <audio id="gameOverSound" src="../voice/scrim.mp3" preload="auto"></audio>
+  
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const screamer = document.getElementById("screamer");
+    const gameOverSound = document.getElementById("gameOverSound");
+    const scoreboard = document.getElementById("scoreboard");
+
+    const ROWS = 25;
+    const COLS = 15;
+    const BLOCK_SIZE = 30;
+    const DROP_INTERVAL = 500;
+    const WIN_THRESHOLD = 1500; // Порог очков для выигрыша
+    let lastDropTime = 0;
+    let gameOver = false;
+    let score = 0;
+
+    const IMAGES = {
+      I: "https://basket-16.wbbasket.ru/vol2601/part260131/260131350/images/c246x328/1.webp",
+      O: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWkHjSJD4tIrysvEhVyPAa57TUIOJiAUW88g&s",
+      T: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWkHjSJD4tIrysvEhVyPAa57TUIOJiAUW88g&s",
+      S: "https://www.meme-arsenal.com/memes/5aeeedfd2b51ace26259b656c6c6681a.jpg",
+      Z: "https://www.meme-arsenal.com/memes/5aeeedfd2b51ace26259b656c6c6681a.jpg",
+      J: "https://basket-16.wbbasket.ru/vol2601/part260131/260131350/images/c246x328/1.webp",
+      L: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWkHjSJD4tIrysvEhVyPAa57TUIOJiAUW88g&s"
+    };
+
+    const loadedImages = {};
+    for (let key in IMAGES) {
+      const img = new Image();
+      img.src = IMAGES[key];
+      loadedImages[key] = img;
+    }
+
+    const TETROMINOS = {
+      I: [[1, 1, 1, 1]],
+      O: [
+        [1, 1],
+        [1, 1]
+      ],
+      T: [
+        [0, 1, 0],
+        [1, 1, 1]
+      ],
+      S: [
+        [0, 1, 1],
+        [1, 1, 0]
+      ],
+      Z: [
+        [1, 1, 0],
+        [0, 1, 1]
+      ],
+      J: [
+        [1, 0, 0],
+        [1, 1, 1]
+      ],
+      L: [
+        [0, 0, 1],
+        [1, 1, 1]
+      ]
+    };
+
+    let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    let currentTetromino = getRandomTetromino();
+    let currentPosition = { x: 7, y: 0 };
+
+    function updateScore() {
+      scoreboard.innerText = "ЦАУ ЦАУ ОЧКИ: " + score;
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          if (board[y][x]) {
+            ctx.drawImage(loadedImages[board[y][x]], x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+          }
+        }
+      }
+    }
+
+    function drawTetromino() {
+      const { shape, type } = currentTetromino;
+      shape.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          if (cell) {
+            const x = currentPosition.x + colIndex;
+            const y = currentPosition.y + rowIndex;
+            ctx.drawImage(loadedImages[type], x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+          }
+        });
+      });
+    }
+
+    function getRandomTetromino() {
+      const keys = Object.keys(TETROMINOS);
+      const randomType = keys[Math.floor(Math.random() * keys.length)];
+      return {
+        shape: TETROMINOS[randomType],
+        type: randomType
+      };
+    }
+
+    function isColliding() {
+      const { shape } = currentTetromino;
+      for (let rowIndex = 0; rowIndex < shape.length; rowIndex++) {
+        for (let colIndex = 0; colIndex < shape[rowIndex].length; colIndex++) {
+          if (shape[rowIndex][colIndex]) {
+            const x = currentPosition.x + colIndex;
+            const y = currentPosition.y + rowIndex;
+            if (x < 0 || x >= COLS || y >= ROWS || board[y][x]) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    function placeTetromino() {
+      const { shape, type } = currentTetromino;
+      for (let rowIndex = 0; rowIndex < shape.length; rowIndex++) {
+        for (let colIndex = 0; colIndex < shape[rowIndex].length; colIndex++) {
+          if (shape[rowIndex][colIndex]) {
+            const x = currentPosition.x + colIndex;
+            const y = currentPosition.y + rowIndex;
+            board[y][x] = type;
+          }
+        }
+      }
+      removeFullLines();
+    }
+
+    function removeFullLines() {
+      let linesCleared = 0;
+      for (let row = ROWS - 1; row >= 0; row--) {
+        if (board[row].every(cell => cell !== 0)) {
+          board.splice(row, 1);
+          board.unshift(Array(COLS).fill(0));
+          linesCleared++;
+        }
+      }
+      if (linesCleared > 0) {
+        score += linesCleared * 100;
+        updateScore();
+        if (score >= WIN_THRESHOLD) {
+          winGame();
+        }
+      }
+    }
+
+    function winGame() {
+  gameOver = true;
+  window.location.href = "win.html"; // Перенаправляем на страницу выигрыша сразу
+}
+
+
+    function moveTetromino() {
+      currentPosition.y += 1;
+      if (isColliding()) {
+        currentPosition.y -= 1;
+        placeTetromino();
+        currentTetromino = getRandomTetromino();
+        currentPosition = { x: 7, y: 0 };
+        if (isColliding()) {
+          gameOver = true;
+          showScreamer();
+        }
+      }
+    }
+
+    function moveLeft() {
+      currentPosition.x -= 1;
+      if (isColliding()) currentPosition.x += 1;
+    }
+
+    function moveRight() {
+      currentPosition.x += 1;
+      if (isColliding()) currentPosition.x -= 1;
+    }
+
+    function rotateTetromino() {
+      const { shape } = currentTetromino;
+      const newShape = shape[0].map((_, colIndex) =>
+        shape.map(row => row[colIndex]).reverse()
+      );
+      const oldShape = currentTetromino.shape;
+      currentTetromino.shape = newShape;
+      if (isColliding()) {
+        currentTetromino.shape = oldShape;
+      }
+    }
+
+    function dropTetromino() {
+      moveTetromino();
+    }
+
+    function gameLoop() {
+      if (gameOver) return;
+      const currentTime = Date.now();
+      if (currentTime - lastDropTime >= DROP_INTERVAL) {
+        lastDropTime = currentTime;
+        moveTetromino();
+      }
+      drawBoard();
+      drawTetromino();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      currentTetromino = getRandomTetromino();
+      currentPosition = { x: 7, y: 0 };
+      gameOver = false;
+      score = 0;
+      updateScore();
+      screamer.style.display = "none";
+      lastDropTime = Date.now();
+      gameLoop();
+    }
+
+    function resetGame() {
+      window.location.reload();
+    }
+
+    function showScreamer() {
+      screamer.innerText = "";
+      screamer.style.display = "flex";
+      gameOverSound.play();
+      setTimeout(resetGame, 3000);
+    }
+
+    startGame();
+
+    document.addEventListener("keydown", event => {
+      if (gameOver) return;
+      switch (event.key) {
+        case "ArrowLeft":
+          moveLeft();
+          break;
+        case "ArrowRight":
+          moveRight();
+          break;
+        case "ArrowDown":
+          dropTetromino();
+          break;
+        case "ArrowUp":
+          rotateTetromino();
+          break;
+      }
+    });
+
+    const exitButton = document.getElementById("exitButton");
+
+exitButton.addEventListener("click", () => {
+  const confirmExit = confirm("пойти нахуй?");
+  if (confirmExit) {
+    resetGame(); // Завершаем игру и перезагружаем страницу
+  }
+});
+
+function resetGame() {
+  window.location.href = "index.html" // Перезагружаем страницу, чтобы начать игру заново
+}
+  </script>
+</body>
+</html>

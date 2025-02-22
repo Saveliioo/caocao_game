@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Y-3</title>
+  <style>
+    body {
+      background-image: url('https://www.lettergram.it/wp-content/uploads/2020/08/Y-3-graphics-seal.png');
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Контейнер для текста и кнопки */
+    .container {
+      background: rgba(0, 0, 0, 0.712); /* Черный фон с прозрачностью */
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.594);
+      position: absolute;
+      top: 16%; /* Центрируем по вертикали */
+      left: 50%;
+      transform: translate(-50%, -50%); /* Центрируем по горизонтали и вертикали */
+    }
+
+    .container h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .container button {
+      padding: 10px 60px;
+      font-size: 24px;
+      cursor: pointer;
+      border: none;
+      background-color: rgb(255, 255, 255);
+      color: #000;
+      border-radius: 5px;
+    }
+
+    .container button:hover {
+      background-color: rgb(167, 164, 164);
+    }
+
+    .toggle-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-label {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 25px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: gray;
+      transition: 0.4s;
+      border-radius: 25px;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      bottom: 2.5px;
+      background-color: rgb(69, 67, 67);
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: rgb(242, 242, 242);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(25px);
+    }
+
+  </style>
+</head>
+<body>
+  <audio id="backgroundMusic" loop>
+    <source src="../voice/music.mp3" type="audio/mp3">
+  </audio>
+
+  <div class="toggle-container">
+    <span class="toggle-label">Музыка:</span>
+    <label class="toggle">
+      <input type="checkbox" id="musicToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <!-- Контейнер с текстом и кнопкой Play -->
+  <div class="container">
+    <h1>Y-3</h1>
+    <button id="playButton">Play</button>
+  </div>
+
+  <script>
+    const music = document.getElementById("backgroundMusic");
+    const musicToggle = document.getElementById("musicToggle");
+    const playButton = document.getElementById("playButton");
+
+    musicToggle.addEventListener("change", function() {
+      if (this.checked) {
+        music.play();
+      } else {
+        music.pause();
+      }
+    });
+
+    playButton.addEventListener("click", function() {
+      window.location.href = "game.html"; // Перенаправление на страницу игры
+    });
+  </script>
+</body>
+</html>
