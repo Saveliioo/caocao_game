@@ -367,18 +367,54 @@
       }
     });
 
+    // Обработчики касания для смартфонов
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    canvas.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    });
+
+    canvas.addEventListener("touchmove", (event) => {
+      if (gameOver) return;
+      const touch = event.touches[0];
+      const diffX = touch.clientX - touchStartX;
+      const diffY = touch.clientY - touchStartY;
+
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Свайп влево или вправо
+        if (diffX < 0) {
+          moveLeft();
+        } else if (diffX > 0) {
+          moveRight();
+        }
+      } else {
+        // Свайп вверх или вниз
+        if (diffY > 0) {
+          dropTetromino();
+        } else {
+          rotateTetromino();
+        }
+      }
+
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    });
+
     const exitButton = document.getElementById("exitButton");
 
-exitButton.addEventListener("click", () => {
-  const confirmExit = confirm("пойти нахуй?");
-  if (confirmExit) {
-    resetGame(); // Завершаем игру и перезагружаем страницу
-  }
-});
+    exitButton.addEventListener("click", () => {
+      const confirmExit = confirm("пойти нахуй?");
+      if (confirmExit) {
+        resetGame(); // Завершаем игру и перезагружаем страницу
+      }
+    });
 
-function resetGame() {
-  window.location.href = "index.html" // Перезагружаем страницу, чтобы начать игру заново
-}
+    function resetGame() {
+      window.location.href = "index.html"; // Перезагружаем страницу, чтобы начать игру заново
+    }
   </script>
 </body>
 </html>
