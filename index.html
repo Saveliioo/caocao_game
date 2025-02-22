@@ -20,42 +20,45 @@
       position: relative;
     }
 
-    /* Контейнер для текста и кнопки */
+    /* Контейнер для заголовка и кнопки */
     .container {
-      background: rgba(0, 0, 0, 0.712); /* Черный фон с прозрачностью */
+      background: rgba(0, 0, 0, 0.8); /* Чёрный фон с прозрачностью */
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.594);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
       position: absolute;
-      top: 16%; /* Центрируем по вертикали */
+      top: 20%;
       left: 50%;
-      transform: translate(-50%, -50%); /* Центрируем по горизонтали и вертикали */
+      transform: translate(-50%, -50%);
+      width: 300px; /* Фиксированная ширина */
     }
 
     .container h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
+      font-size: 36px;
+      margin-bottom: 15px;
     }
 
     .container button {
-      padding: 10px 60px;
-      font-size: 24px;
+      padding: 12px 40px;
+      font-size: 22px;
       cursor: pointer;
       border: none;
-      background-color: rgb(255, 255, 255);
-      color: #000;
+      background-color: white;
+      color: black;
       border-radius: 5px;
+      transition: 0.3s;
     }
 
     .container button:hover {
-      background-color: rgb(167, 164, 164);
+      background-color: gray;
     }
 
+    /* Контейнер для переключателя музыки */
     .toggle-container {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 10px;
+      right: 10px;
       display: flex;
       align-items: center;
     }
@@ -95,19 +98,55 @@
       height: 20px;
       left: 3px;
       bottom: 2.5px;
-      background-color: rgb(69, 67, 67);
+      background-color: black;
       transition: 0.4s;
       border-radius: 50%;
     }
 
     input:checked + .slider {
-      background-color: rgb(242, 242, 242);
+      background-color: white;
     }
 
     input:checked + .slider:before {
       transform: translateX(25px);
     }
 
+    /* АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА */
+    @media (max-width: 600px) {
+      .container {
+        width: 90%; /* Контейнер растягивается на всю ширину */
+        top: 30%; /* Смещаем чуть ниже */
+        padding: 15px;
+      }
+
+      .container h1 {
+        font-size: 28px; /* Уменьшаем заголовок */
+      }
+
+      .container button {
+        font-size: 18px; /* Уменьшаем кнопку */
+        padding: 10px 30px;
+      }
+
+      .toggle-container {
+        top: 5px;
+        right: 5px;
+      }
+
+      .toggle-label {
+        font-size: 16px;
+      }
+
+      .toggle {
+        width: 40px;
+        height: 20px;
+      }
+
+      .slider:before {
+        width: 16px;
+        height: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -115,6 +154,7 @@
     <source src="voice/music.mp3" type="audio/mp3">
   </audio>
 
+  <!-- Переключатель музыки -->
   <div class="toggle-container">
     <span class="toggle-label">Музыка:</span>
     <label class="toggle">
@@ -123,7 +163,7 @@
     </label>
   </div>
 
-  <!-- Контейнер с текстом и кнопкой Play -->
+  <!-- Контейнер с заголовком и кнопкой -->
   <div class="container">
     <h1>Y-3</h1>
     <button id="playButton">Play</button>
@@ -143,7 +183,7 @@
     });
 
     playButton.addEventListener("click", function() {
-      window.location.href = "game.html"; // Перенаправление на страницу игры
+      window.location.href = "game.html"; // Перенаправление на игру
     });
   </script>
 </body>
