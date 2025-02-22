@@ -102,12 +102,12 @@
 </head>
 <body>
   <!-- Основной видеофон (с аудио) -->
-  <video id="background-video" src="../voice/video.mp4" autoplay loop></video>
+  <video id="background-video" src="voice/video.mp4" autoplay loop></video>
   
   <!-- Контейнер игры -->
   <div class="game-container">
     <!-- Фоновое видео внутри тетриса (без аудио) -->
-    <video id="tetris-video" src="../voice/video2.mp4" autoplay loop muted></video>
+    <video id="tetris-video" src="voice/video2.mp4" autoplay loop muted></video>
     <canvas id="gameCanvas" width="450" height="750"></canvas>
     <div id="scoreboard">ЦАУ ЦАУ ОЧКИ: 0</div>
     <div class="screamer" id="screamer"></div>
@@ -118,7 +118,7 @@
   </div>
     
   <!-- Звук окончания игры -->
-  <audio id="gameOverSound" src="../voice/scrim.mp3" preload="auto"></audio>
+  <audio id="gameOverSound" src="voice/scrim.mp3" preload="auto"></audio>
   
   <script>
     const canvas = document.getElementById("gameCanvas");
