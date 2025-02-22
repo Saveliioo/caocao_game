@@ -78,9 +78,23 @@
     }
     #game-controls {
       position: absolute;
-      top: 10px;
+      top: 50%;
       right: 10px;
+      transform: translateY(-50%);
       z-index: 3;
+    }
+    .control-button {
+      padding: 10px;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .control-button:hover {
+      background-color: rgba(167, 164, 164, 0.8);
     }
     #exitButton {
       padding: 8px 16px;
@@ -97,12 +111,9 @@
   </style>
 </head>
 <body>
-  <!-- Основной видеофон (с аудио) -->
   <video id="background-video" src="voice/video.mp4" autoplay loop></video>
   
-  <!-- Контейнер игры -->
   <div class="game-container">
-    <!-- Фоновое видео внутри тетриса (без аудио) -->
     <video id="tetris-video" src="voice/video2.mp4" autoplay loop muted></video>
     <canvas id="gameCanvas" width="450" height="750"></canvas>
     <div id="scoreboard">ЦАУ ЦАУ ОЧКИ: 0</div>
@@ -110,10 +121,13 @@
   </div>
 
   <div id="game-controls">
+    <button class="control-button" id="leftButton">Влево</button>
+    <button class="control-button" id="rightButton">Вправо</button>
+    <button class="control-button" id="rotateButton">Поворот</button>
+    <button class="control-button" id="downButton">Падение</button>
     <button id="exitButton">Выход</button>
   </div>
     
-  <!-- Звук окончания игры -->
   <audio id="gameOverSound" src="voice/scrim.mp3" preload="auto"></audio>
   
   <script>
@@ -127,7 +141,7 @@
     const COLS = 15;
     const BLOCK_SIZE = 30;
     const DROP_INTERVAL = 500;
-    const WIN_THRESHOLD = 1500; // Порог очков для выигрыша
+    const WIN_THRESHOLD = 1500;
     let lastDropTime = 0;
     let gameOver = false;
     let score = 0;
@@ -241,6 +255,9 @@
           if (shape[rowIndex][colIndex]) {
             const x = currentPosition.x + colIndex;
             const y = currentPosition.y + rowIndex;
+            if (y >= ROWS) {
+              return;
+            }
             board[y][x] = type;
           }
         }
@@ -267,10 +284,9 @@
     }
 
     function winGame() {
-  gameOver = true;
-  window.location.href = "win.html"; // Перенаправляем на страницу выигрыша сразу
-}
-
+      gameOver = true;
+      window.location.href = "win.html";
+    }
 
     function moveTetromino() {
       currentPosition.y += 1;
@@ -331,90 +347,36 @@
       gameOver = false;
       score = 0;
       updateScore();
-      screamer.style.display = "none";
-      lastDropTime = Date.now();
       gameLoop();
     }
 
-    function resetGame() {
-      window.location.reload();
-    }
-
     function showScreamer() {
-      screamer.innerText = "";
       screamer.style.display = "flex";
       gameOverSound.play();
-      setTimeout(resetGame, 3000);
     }
+
+    document.addEventListener("keydown", (e) => {
+      if (gameOver) return;
+      if (e.key === "ArrowLeft") {
+        moveLeft();
+      } else if (e.key === "ArrowRight") {
+        moveRight();
+      } else if (e.key === "ArrowDown") {
+        moveTetromino();
+      } else if (e.key === "ArrowUp") {
+        rotateTetromino();
+      }
+    });
+
+    document.getElementById("leftButton").addEventListener("click", moveLeft);
+    document.getElementById("rightButton").addEventListener("click", moveRight);
+    document.getElementById("rotateButton").addEventListener("click", rotateTetromino);
+    document.getElementById("downButton").addEventListener("click", dropTetromino);
+    document.getElementById("exitButton").addEventListener("click", () => {
+      window.location.href = "exit.html";
+    });
 
     startGame();
-
-    document.addEventListener("keydown", event => {
-      if (gameOver) return;
-      switch (event.key) {
-        case "ArrowLeft":
-          moveLeft();
-          break;
-        case "ArrowRight":
-          moveRight();
-          break;
-        case "ArrowDown":
-          dropTetromino();
-          break;
-        case "ArrowUp":
-          rotateTetromino();
-          break;
-      }
-    });
-
-    // Обработчики касания для смартфонов
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    canvas.addEventListener("touchstart", (event) => {
-      const touch = event.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    });
-
-    canvas.addEventListener("touchmove", (event) => {
-      if (gameOver) return;
-      const touch = event.touches[0];
-      const diffX = touch.clientX - touchStartX;
-      const diffY = touch.clientY - touchStartY;
-
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        // Свайп влево или вправо
-        if (diffX < 0) {
-          moveLeft();
-        } else if (diffX > 0) {
-          moveRight();
-        }
-      } else {
-        // Свайп вверх или вниз
-        if (diffY > 0) {
-          dropTetromino();
-        } else {
-          rotateTetromino();
-        }
-      }
-
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    });
-
-    const exitButton = document.getElementById("exitButton");
-
-    exitButton.addEventListener("click", () => {
-      const confirmExit = confirm("пойти нахуй?");
-      if (confirmExit) {
-        resetGame(); // Завершаем игру и перезагружаем страницу
-      }
-    });
-
-    function resetGame() {
-      window.location.href = "index.html"; // Перезагружаем страницу, чтобы начать игру заново
-    }
   </script>
 </body>
 </html>
