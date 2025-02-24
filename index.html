@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=390, height=844, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Y-3</title>
   <style>
     body {
@@ -14,64 +14,61 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       flex-direction: column;
       position: relative;
     }
 
-    /* Контейнер для заголовка и кнопки */
+    /* Контейнер для текста и кнопки */
     .container {
-      background: rgba(0, 0, 0, 0.75); /* Чёрный фон с прозрачностью */
-      padding: 15px;
-      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.712); /* Черный фон с прозрачностью */
+      padding: 20px;
+      border-radius: 10px;
       text-align: center;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.594);
       position: absolute;
-      top: 35%;
+      top: 19%; /* Центрируем по вертикали */
       left: 50%;
-      transform: translate(-50%, -50%);
-      width: 320px;
+      transform: translate(-50%, -50%); /* Центрируем по горизонтали и вертикали */
     }
 
     .container h1 {
-      font-size: 28px;
-      margin-bottom: 12px;
+      font-size: 48px;
+      margin-bottom: 20px;
     }
 
     .container button {
-      padding: 10px 40px;
-      font-size: 20px;
+      padding: 10px 60px;
+      font-size: 24px;
       cursor: pointer;
       border: none;
-      background-color: white;
-      color: black;
-      border-radius: 6px;
-      transition: 0.3s;
+      background-color: rgb(255, 255, 255);
+      color: #000;
+      border-radius: 5px;
     }
 
     .container button:hover {
-      background-color: gray;
+      background-color: rgb(167, 164, 164);
     }
 
-    /* Контейнер для переключателя музыки */
     .toggle-container {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 20px;
+      right: 20px;
       display: flex;
       align-items: center;
     }
 
     .toggle-label {
-      font-size: 16px;
-      margin-right: 8px;
+      font-size: 18px;
+      margin-right: 10px;
     }
 
     .toggle {
       position: relative;
-      width: 42px;
-      height: 22px;
+      width: 50px;
+      height: 25px;
     }
 
     .toggle input {
@@ -88,27 +85,27 @@
       bottom: 0;
       background-color: gray;
       transition: 0.4s;
-      border-radius: 22px;
+      border-radius: 25px;
     }
 
     .slider:before {
       content: "";
       position: absolute;
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       left: 3px;
-      bottom: 3px;
-      background-color: black;
+      bottom: 2.5px;
+      background-color: rgb(69, 67, 67);
       transition: 0.4s;
       border-radius: 50%;
     }
 
     input:checked + .slider {
-      background-color: white;
+      background-color: rgb(242, 242, 242);
     }
 
     input:checked + .slider:before {
-      transform: translateX(20px);
+      transform: translateX(25px);
     }
 
   </style>
@@ -118,7 +115,6 @@
     <source src="voice/music.mp3" type="audio/mp3">
   </audio>
 
-  <!-- Переключатель музыки -->
   <div class="toggle-container">
     <span class="toggle-label">Музыка:</span>
     <label class="toggle">
@@ -127,7 +123,7 @@
     </label>
   </div>
 
-  <!-- Контейнер с заголовком и кнопкой -->
+  <!-- Контейнер с текстом и кнопкой Play -->
   <div class="container">
     <h1>Y-3</h1>
     <button id="playButton">Play</button>
@@ -147,7 +143,7 @@
     });
 
     playButton.addEventListener("click", function() {
-      window.location.href = "game.html"; // Перенаправление на игру
+      window.location.href = "game.html"; // Перенаправление на страницу игры
     });
   </script>
 </body>
