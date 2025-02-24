@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тетрис с выигрышем</title>
+  <title>Тетрис с целевым счетом</title>
   <style>
     body {
       display: flex;
@@ -27,12 +27,12 @@
     .game-container {
       position: relative;
       width: 100%;
-      max-width: 450px; /* Ограничение максимальной ширины */
+      max-width: 450px;
       height: 750px;
       border: 2px solid white;
       z-index: 1;
       overflow: hidden;
-      box-sizing: border-box; /* Учитываем границы и отступы в размерах */
+      box-sizing: border-box;
     }
     #tetris-video {
       position: absolute;
@@ -49,8 +49,8 @@
       background: transparent;
       position: relative;
       z-index: 0;
-      width: 100%; /* canvas будет растягиваться на всю ширину контейнера */
-      height: 100%; /* canvas будет растягиваться на всю высоту контейнера */
+      width: 100%;
+      height: 100%;
     }
     #scoreboard {
       position: absolute;
@@ -129,7 +129,7 @@
   <div class="game-container">
     <video id="tetris-video" src="voice/video2.mp4" autoplay loop muted></video>
     <canvas id="gameCanvas" width="450" height="750"></canvas>
-    <div id="scoreboard">ЦАУ ЦАУ ОЧКИ: 0</div>
+    <div id="scoreboard">Очки: 0 / 1000</div>
     <div class="screamer" id="screamer"></div>
   </div>
 
@@ -146,15 +146,17 @@
       const screamer = document.getElementById("screamer");
       const gameOverSound = document.getElementById("gameOverSound");
       const scoreboard = document.getElementById("scoreboard");
+      const exitButton = document.getElementById("exitButton");
 
       const ROWS = 25;
       const COLS = 15;
       const BLOCK_SIZE = 30;
       const DROP_INTERVAL = 500;
-      const WIN_THRESHOLD = 100;
+      const WIN_THRESHOLD = 1000; // Целевой счет для победы
       let lastDropTime = 0;
       let gameOver = false;
       let score = 0;
+      let maxScore = WIN_THRESHOLD; // Целевой счет
 
       const IMAGES = {
         I: "https://basket-16.wbbasket.ru/vol2601/part260131/260131350/images/c246x328/1.webp",
@@ -206,7 +208,7 @@
       let currentPosition = { x: 7, y: 0 };
 
       function updateScore() {
-        scoreboard.innerText = "ЦАУ ЦАУ ОЧКИ: " + score;
+        scoreboard.innerText = `Очки: ${score} / ${maxScore}`;
       }
 
       function drawBoard() {
@@ -283,15 +285,16 @@
         }
         if (linesCleared > 0) {
           score += linesCleared * 100;
-          updateScore();
           if (score >= WIN_THRESHOLD) {
             winGame();
           }
+          updateScore();
         }
       }
 
       function winGame() {
         gameOver = true;
+        alert("Вы победили!");
         window.location.href = "win.html"; 
       }
 
@@ -343,28 +346,72 @@
         window.location.href = "index.html";
       }
 
-      document.addEventListener("keydown", event => {
-        if (gameOver) return;
-        if (event.key === "ArrowLeft") moveLeft();
-        if (event.key === "ArrowRight") moveRight();
-        if (event.key === "ArrowDown") moveTetromino();
-        if (event.key === "ArrowUp") rotateTetromino();
+      let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener("touchstart", (event) => {
+  touchStartX = event.touches[0].clientX;
+  touchStartY = event.touches[0].clientY;
+});
+
+canvas.addEventListener("touchmove", (event) => {
+  event.preventDefault(); // Предотвращаем прокрутку страницы
+  const touchEndX = event.touches[0].clientX;
+  const touchEndY = event.touches[0].clientY;
+
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+
+  // Если движение больше по оси X - перемещение влево или вправо
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 0) {
+      moveRight(); // Двигаем фигуру вправо
+    } else {
+      moveLeft(); // Двигаем фигуру влево
+    }
+  } else {
+    // Если движение больше по оси Y - вращение фигуры (свайп вверх)
+    if (diffY < 0) {
+      rotateTetromino(); // Вращаем фигуру при свайпе вверх
+    } else {
+      moveTetromino(); // Двигаем фигуру вниз (при свайпе вниз)
+    }
+  }
+
+  // Обновляем начальные координаты для следующего движения
+  touchStartX = touchEndX;
+  touchStartY = touchEndY;
+});
+
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+          moveLeft();
+        } else if (event.key === "ArrowRight") {
+          moveRight();
+        } else if (event.key === "ArrowDown") {
+          moveTetromino();
+        } else if (event.key === "ArrowUp") {
+          rotateTetromino();
+        }
       });
 
-      document.getElementById("exitButton").addEventListener("click", () => {
-        const confirmExit = confirm("пойти нахуй?");
-        if (confirmExit) {
-          reloadGame();
+      // Кнопка выхода
+      exitButton.addEventListener("click", () => {
+        const exit = confirm("Вы уверены, что хотите выйти?");
+        if (exit) {
+          window.location.href = "index.html"; // Перенаправление на главную страницу
         }
       });
 
       function gameLoop() {
         if (gameOver) return;
-        const now = Date.now();
-        if (now - lastDropTime > DROP_INTERVAL) {
+
+        if (Date.now() - lastDropTime > DROP_INTERVAL) {
           moveTetromino();
-          lastDropTime = now;
+          lastDropTime = Date.now();
         }
+
         drawBoard();
         drawTetromino();
         requestAnimationFrame(gameLoop);
